@@ -18,6 +18,15 @@ function! s:getchar()
   return c
 endfunction
 
+function! JsctagsCompletion(...)
+  try
+    let result = json_decode(system('jsctags ' . expand('%:p')))
+    return join(map(result, {_, val -> val.name}), "\n")
+  catch
+    return ''
+  endtry
+endfunction
+
 function! s:inputtarget()
   let c = s:getchar()
   while c =~ '^\d\+$'
@@ -179,7 +188,7 @@ function! s:wrap(string,char,type,removed,special)
       endif
       let default = matchstr(s:lastdel,'<\zs.\{-\}\ze>')
     endif
-    let tag = input("<",default)
+    let tag = input("<",default,'custom,JsctagsCompletion')
     if dounmapb
       silent! cunmap >
     endif
